@@ -26,9 +26,9 @@ Client.js is a client side of the application. It has several AJAX requests, and
 
 Installation:
 
-To install the application, you can clone the repo, then in the installation directory you should perform ‘nom install’.
+To install the application, you can clone the repo, then in the installation directory you should perform ‘npm install’.
 
 
 Running the app:
 
-To run the app, you should go to the installation directory and perform ’nom start’.
+To run the app, you should go to the installation directory and perform ’npm start’.
