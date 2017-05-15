@@ -9,22 +9,22 @@
 
 </head>
 <body>
-<div class="header">
-    <div><strong>SITE NAME</strong></div>
-</div>
-<div class="main">
-    <div><strong>Please log in</strong></div>
+<div class="page__wrap">
+    <div class="header">
+        <div><strong>SITE NAME</strong></div>
+    </div>
+    <div class="main">
+        <div class="main__row" id="main__title"><strong>Welcome!</strong></div>
 
-    <strong><a href="/auth">Log in</a></strong>
-    <br>
-    <strong><a href="/logout">Log out</a></strong>
-    <br>
-    <strong><a id="getuser" href="#">Get user info</a></strong>
+        <div class="main__row" id="main__login">Please, <strong><a href="/auth" id="login">log in</a></strong> to get user data</div>
 
-    <div class="div__userinfo" id="userinfo"></div>
-</div>
-<div class="footer">
-    <div>Credits (c) 2017</div>
+        <div class="main__row" id="userinfo"></div>
+
+        <div class="main__row" id="main__logout"><strong><a  id="logout">Log out</a></strong></div>
+    </div>
+    <div class="footer">
+        <div>Copyright (c) 2017</div>
+    </div>
 </div>
 </body>
 </html>
