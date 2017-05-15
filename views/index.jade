@@ -1,7 +1,22 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  div(class='header')
+    div
+      strong SITE NAME
 
-  <a href='/users'>userpage</a>
+  div(class='main')
+    strong
+        a(href='/auth') Log in
+    br
+    strong
+        a(href='/logout') Log out
+    br
+    strong
+        a(href='/profile') Get user info
+
+    div(class='div__userinfo' id='userinfo')
+
+  div(class='footer')
+
+      div Credits (c) 2017

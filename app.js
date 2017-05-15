@@ -5,7 +5,15 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+
 var passport = require('passport');
+var session = require('express-session');
+
+// secret, clientID
+var keys = require('./bin/config');
+
+// use OAuth2
+var OAuth2Strategy = require('passport-oauth2').Strategy;
 
 var index = require('./routes/index');
 var login = require('./routes/login');
@@ -16,43 +24,58 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+// express-session
+app.use(session({ secret: 'session-secret' }));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+
+// STEP 3: callback redirect
+app.get('/', passport.authenticate('oauth2', { failureRedirect: '/error' }),
+    function(req, res)
+    {
+        res.redirect('/index.html');
+    });
+
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-//app.use('/login', login);
+var page = {index: "index.html"};
+app.use('/', express.static('app', page));
+
 
 // ===========================
 
-app.get('/logout', function(req, res){
-    req.logout();
-    res.send('server@logout > RESPONSE');
-});
-
-var keys = require('./bin/config');
-var OAuth2Strategy = require('passport-oauth2').Strategy;
-
+// STEP 2: OAuth2 strategy
 passport.use(new OAuth2Strategy({
         authorizationURL: 'https://staging-auth.wallstreetdocs.com/oauth/authorize',
         tokenURL: 'https://staging-auth.wallstreetdocs.com/oauth/token',
         clientID: keys.clientID,
         clientSecret: keys.secret,
-        callbackURL: "http://localhost:3000/"
+        callbackURL: "http://localhost:3000",
+        passReqToCallback: true
     },
-    function(accessToken, refreshToken, profile, done) {
-        return done(null, profile);
+    function(req, accessToken, refreshToken, profile, done)
+    {
+        // write accessToken into the session
+        req.session.accessToken = accessToken;
+        console.log(' ---> write accessToken to session');
+        // establish authenticated session
+        req.session.authed = true;
+        console.log(' ---> write auth to session');
+        // send an empty profile
+        return done(null,profile);
     }
 ));
 
-var session = require('express-session');
-app.use(session({secret: "customz"}));
-app.use(passport.initialize());
-app.use(passport.session());
 
 passport.serializeUser(function(user, done) {
     // placeholder for custom user serialization
@@ -68,15 +91,42 @@ passport.deserializeUser(function(user, done) {
 });
 
 
-// we will call this to start the GitHub Login process
+// STEP 1: start authentication
 app.get('/auth', passport.authenticate('oauth2'));
 
-// GitHub will call this URL
-app.get('/auth/callback', passport.authenticate('oauth2', { failureRedirect: '/' }),
-    function(req, res) {
-        res.redirect('/');
-    }
-);
+
+// STEP 4: get profile info with the token from session
+app.get('/profile',function(req, res, next){
+
+    var util = require('util');
+    var exec = require('child_process').exec;
+
+    var command = `curl -X GET -H "Authorization: Bearer ${req.session.accessToken}" -H "Cache-Control: no-cache" "https://staging-auth.wallstreetdocs.com/oauth/userinfo"`;
+
+    child = exec(command, function(error, stdout, stderr){
+
+        //console.log('stdout: ' + stdout);
+        //console.log('stderr: ' + stderr);
+
+        if(error !== null)
+        {
+            console.log('exec error: ' + error);
+        }
+        // send profile info
+        var response = {};
+        if (req.session.authed === true) response = { data: stdout, auth: req.session.authed };
+        if (req.session.authed === false) response = { data: 'Unauthorized', auth: req.session.authed };
+        res.send(response);
+    });
+});
+
+
+// logout
+app.get('/logout', function(req, res){
+    req.logout();
+    req.session.authed = false;
+    res.redirect('/');
+});
 
 // =============================
 console.log(' ---> loaded');
