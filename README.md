@@ -32,3 +32,22 @@ To install the application, you can clone the repo, then in the installation dir
 Running the app:
 
 To run the app, you should go to the installation directory and perform ’npm start’.
+
+
+UPDATE TO VERSION 2 (05.17.2017)
+
+Changes / improvements:
+
+- added server-side rendering;
+
+- added template engine (EJS);
+
+- removed index.html;
+
+- reduced size of the client part of the app (client.js);
+
+- updated code to ES6 standarts.
+
+Currently, app has 2 states: index and user. In index state there's a 'Log in' invite, and in user state there's user data.
+States are changed depending on the authorization state of the user, so unauthorized user can't get user data.
+Also, CURL request was changed to http request.
