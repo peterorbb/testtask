@@ -1,5 +1,11 @@
-var express = require('express');
+const express = require('express');
 
-var keys = { clientID: 'id', secret: 'secret' };
+const keys = {
+    clientID: 'id',
+    secret: 'secret',
+    authorizationURL: 'http://authorize',
+    tokenURL: 'http://token',
+    callbackURL: 'http://callback'
+};
 
 module.exports = keys;

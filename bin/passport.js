@@ -1,14 +1,14 @@
-var passport = require('passport');
-var keys = require('./config');
+const passport = require('passport');
+const keys = require('./config');
 // use OAuth2
-var OAuth2Strategy = require('passport-oauth2').Strategy;
+const OAuth2Strategy = require('passport-oauth2').Strategy;
 
 passport.use(new OAuth2Strategy({
-        authorizationURL: 'https://staging-auth.wallstreetdocs.com/oauth/authorize',
-        tokenURL: 'https://staging-auth.wallstreetdocs.com/oauth/token',
+        authorizationURL: keys.authorizationURL,
+        tokenURL: keys.tokenURL,
         clientID: keys.clientID,
         clientSecret: keys.secret,
-        callbackURL: "http://localhost:3000",
+        callbackURL: keys.callbackURL,
         passReqToCallback: true
     },
     function (req, accessToken, refreshToken, profile, done) {
@@ -33,3 +33,13 @@ passport.deserializeUser(function (user, done) {
     // null is for errors
     done(null, user);
 });
+
+module.exports = {
+    checkOnStart: function (req, res, next) {
+        passport.authenticate('oauth2', {failureRedirect: '/error'})(req, res, function () {
+            res.cookie('isAuthenticated', true);
+            req.query.code = undefined;
+            res.redirect('/user')
+        })
+    }
+};

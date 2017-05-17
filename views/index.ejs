@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test task with Auth</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="/javascripts/jquery-3-1-1.js"></script>
+    <script src="/javascripts/client.js"></script>
+
+</head>
+<body>
+<div class="page__wrap">
+
+    <% include ./components/header.ejs %>
+
+    <div class="main">
+
+        <% if (UserInfo.state === 'authed') { %>
+            <% include ./components/user.ejs %>
+        <% } else{ %>
+            <% include ./components/main.ejs %>
+        <% } %>
+
+    </div>
+
+    <% include ./components/footer.ejs %>
+
+</div>
+</body>
+</html>
